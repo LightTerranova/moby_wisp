@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.PowerManager;
 import android.util.Log;
+import java.lang.reflect.Method;
 
 import org.thoughtcrime.securesms.util.Util;
 
@@ -52,7 +53,12 @@ public class MmsRadio {
 
     if (connectedCounter == 0) {
       Log.w("MmsRadio", "Turning off MMS radio...");
-      connectivityManager.stopUsingNetworkFeature(ConnectivityManager.TYPE_MOBILE, FEATURE_ENABLE_MMS);
+        try {
+            Method stop = connectivityManager.getClass().getMethod("stopUsingNetworkFeature", Integer.TYPE, String.class);
+            stop.invoke(connectivityManager, ConnectivityManager.TYPE_MOBILE, FEATURE_ENABLE_MMS);
+        } catch (Exception e) {
+            Log.w("MmsRadio", e);
+        }
 
       if (connectivityListener != null) {
         Log.w("MmsRadio", "Unregistering receiver...");
@@ -63,8 +69,13 @@ public class MmsRadio {
   }
 
   public synchronized void connect() throws MmsRadioException {
-    int status = connectivityManager.startUsingNetworkFeature(ConnectivityManager.TYPE_MOBILE,
-                                                              FEATURE_ENABLE_MMS);
+      int status = APN_ALREADY_ACTIVE;
+      try {
+          Method start = connectivityManager.getClass().getMethod("startUsingNetworkFeature", Integer.TYPE, String.class);
+          status = (Integer) start.invoke(connectivityManager, ConnectivityManager.TYPE_MOBILE, FEATURE_ENABLE_MMS);
+      } catch (Exception e) {
+          Log.w("MmsRadio", e);
+      }
 
     Log.w("MmsRadio", "startUsingNetworkFeature status: " + status);
 

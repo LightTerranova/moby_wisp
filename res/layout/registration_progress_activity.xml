@@ -323,7 +323,7 @@
 
                         <ProgressBar
                                 android:id="@+id/connecting_progress"
-                                style="?android:attr/android:progressBarStyleSmall"
+                                style="?android:attr/progressBarStyleSmall"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -367,7 +367,7 @@
 
                         <ProgressBar
                                 android:id="@+id/verification_progress"
-                                style="?android:attr/android:progressBarStyleSmall"
+                                style="?android:attr/progressBarStyleSmall"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -411,7 +411,7 @@
 
                         <ProgressBar
                                 android:id="@+id/generating_keys_progress"
-                                style="?android:attr/android:progressBarStyleSmall"
+                                style="?android:attr/progressBarStyleSmall"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -455,7 +455,7 @@
 
                         <ProgressBar
                                 android:id="@+id/gcm_registering_progress"
-                                style="?android:attr/android:progressBarStyleSmall"
+                                style="?android:attr/progressBarStyleSmall"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"

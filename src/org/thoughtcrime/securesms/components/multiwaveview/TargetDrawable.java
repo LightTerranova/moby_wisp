@@ -214,7 +214,7 @@ public class TargetDrawable {
         if (mDrawable == null) {
             return;
         }
-        canvas.save(Canvas.MATRIX_SAVE_FLAG);
+        canvas.save();
         canvas.translate(mTranslationX, mTranslationY);
         canvas.scale(mScaleX, mScaleY);
         canvas.translate(-0.5f * getWidth(), -0.5f * getHeight());

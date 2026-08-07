@@ -143,10 +143,16 @@ public abstract class LegacyMmsConnection {
       Log.w(TAG, ite);
     }
 
-    final int     ipAddress           = Conversions.byteArrayToIntLittleEndian(ipAddressBytes, 0);
-    final boolean routeToHostObtained = manager.requestRouteToHost(MmsRadio.TYPE_MOBILE_MMS, ipAddress);
-    Log.w(TAG, "requestRouteToHost(" + ipAddress + ") -> " + routeToHostObtained);
-    return routeToHostObtained;
+    final int ipAddress = Conversions.byteArrayToIntLittleEndian(ipAddressBytes, 0);
+    try {
+        final Method  legacyRouteMethod   = manager.getClass().getMethod("requestRouteToHost", Integer.TYPE, Integer.TYPE);
+        final boolean routeToHostObtained = (Boolean) legacyRouteMethod.invoke(manager, MmsRadio.TYPE_MOBILE_MMS, ipAddress);
+        Log.w(TAG, "requestRouteToHost(" + ipAddress + ") -> " + routeToHostObtained);
+        return routeToHostObtained;
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        Log.w(TAG, e);
+        return true;
+    }
   }
 
   protected static byte[] parseResponse(InputStream is) throws IOException {

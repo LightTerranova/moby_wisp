@@ -89,7 +89,8 @@ public class ApplicationContext extends MultiDexApplication implements Dependenc
     initializeSignedPreKeyCheck();
     initializePeriodicTasks();
     initializeCircumvention();
-    initializeWebRtc();
+    // initializeWebRtc();                  This breaks on x64 devices
+    TextSecurePreferences.setPromptedPushRegistration(this, true);
   }
 
   @Override
