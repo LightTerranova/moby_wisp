@@ -435,6 +435,15 @@
 
     <service android:enabled="true" android:name="org.denovogroup.murmur.backend.MurmurService"/>
 
+        <activity android:name="org.denovogroup.murmur.bench.BleLinkTestActivity"
+            android:label="BLE Link Test"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
     <receiver android:name=".gcm.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
         <intent-filter>
             <action android:name="com.google.android.c2dm.intent.RECEIVE" />
