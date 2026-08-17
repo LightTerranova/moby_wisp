@@ -20,10 +20,12 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import org.denovogroup.murmur.bench.IrkStore;
+import org.denovogroup.murmur.bench.PsmCipher;
 import org.denovogroup.murmur.bench.ResolvableServiceUuid;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -140,9 +142,14 @@ public class MobyBleTransport {
                     if (!ResolvableServiceUuid.resolves(advertised, irk)) continue;
 
                     byte[] serviceData = entry.getValue();
-                    if (serviceData == null || serviceData.length < 2) continue;
+                    if (serviceData == null || serviceData.length != 2) continue;
 
-                    int psm = ByteBuffer.wrap(serviceData).getShort() & 0xFFFF;
+                    int psm;
+                    try {psm = PsmCipher.decrypt(serviceData, advertised, irk);
+                    } catch (Exception e) {
+                        Log.w(TAG, "PSM didnt decrypt right", e);
+                        continue;
+                    }
                     if (foundDevice.compareAndSet(null, result.getDevice())) {
                         foundPsm.set(psm);
                         Log.i(TAG, "Resolved Moby peer " + result.getDevice().getAddress() + " PSM " + psm + " (RSSI " + result.getRssi() + ")");
@@ -183,11 +190,18 @@ public class MobyBleTransport {
         currentUuid = ResolvableServiceUuid.generate(irk);
         uuidGeneratedAt = System.currentTimeMillis();
 
-        byte[] psmBytes = ByteBuffer.allocate(2).putShort((short) psm).array();
+        byte[] psmBytes = PsmCipher.encrypt(psm, currentUuid.getUuid(), irk); // adding encrypted psm
 
         AdvertiseSettings settings = new AdvertiseSettings.Builder().setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY).setConnectable(true).build();
 
         AdvertiseData data = new AdvertiseData.Builder().setIncludeDeviceName(false).addServiceData(currentUuid, psmBytes).build();
+
+        StringBuilder psmHex = new StringBuilder();
+        for (byte b : psmBytes) psmHex.append(String.format("%02x", b));
+        Log.i(TAG, "Resolvable UUID: " + currentUuid + " Encrypted PSM: " + psmHex);
+
+        // Log.i(TAG, "Resolvable UUID: " + currentUuid + " Encrypted PSM: " + Arrays.toString(psmBytes));
+
 
         advertiseCallback = new AdvertiseCallback() {
             @Override
