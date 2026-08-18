@@ -31,12 +31,9 @@ import java.io.OutputStream;
 @RequiresApi(api = Build.VERSION_CODES.Q)
 public class BleLinkTestActivity extends Activity {
     private final MobyTrafficGenerator.Profile profile = MobyTrafficGenerator.volumeMatched();
-
     private static final String TAG = "moby_wisp";
-
     private static final long SCAN_TIMEOUT_MS = 30000;
     private static final int ACK_BYTE = 0x06;
-
     private TextView log;
     private EditText irkField;
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -68,6 +65,13 @@ public class BleLinkTestActivity extends Activity {
             @Override public void onClick(View v) {
                 IrkStore.setHex(BleLinkTestActivity.this, irkField.getText().toString());
                 append("IRK saved");
+            }
+        }));
+
+        root.addView(button("Toggle public mode", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                MobyBleTransport.encryptionEnabled = !MobyBleTransport.encryptionEnabled;
+                append(MobyBleTransport.encryptionEnabled ? "Rotating UUID and encrypted PSM" : "Static UUID and plaintext PSM");
             }
         }));
 

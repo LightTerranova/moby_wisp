@@ -39,6 +39,8 @@ public class MobyBleTransport {
     private static final int  CONNECT_MAX_ATTEMPTS = 3;
     private static final long CONNECT_RETRY_BACKOFF_MS = 500;
     private static final int  ACCEPT_TIMEOUT_MS = 90000;
+    public static boolean encryptionEnabled = true; // decides if public or private mode
+    private static final ParcelUuid STATIC_UUID = ParcelUuid.fromString("6d6f6279-7769-7370-6d6f-627977697370"); // moby wisp in hex :)
 
     // found moby server
     public static final class DiscoveredServer {
@@ -120,9 +122,6 @@ public class MobyBleTransport {
     @SuppressLint("MissingPermission")
     private DiscoveredServer scanForServer(long timeoutMillis) throws Exception {
         final byte[] irk = IrkStore.get(context);
-        if (irk == null) {
-            throw new IOException("No IRK");
-        }
 
         final AtomicReference<BluetoothDevice> foundDevice = new AtomicReference<>(null);
         final AtomicReference<Integer> foundPsm = new AtomicReference<>(null);
@@ -139,16 +138,20 @@ public class MobyBleTransport {
 
                 for (Map.Entry<ParcelUuid, byte[]> entry : record.getServiceData().entrySet()) {
                     UUID advertised = entry.getKey().getUuid();
-                    if (!ResolvableServiceUuid.resolves(advertised, irk)) continue;
-
                     byte[] serviceData = entry.getValue();
                     if (serviceData == null || serviceData.length != 2) continue;
-
                     int psm;
-                    try {psm = PsmCipher.decrypt(serviceData, advertised, irk);
-                    } catch (Exception e) {
-                        Log.w(TAG, "PSM didnt decrypt right", e);
-                        continue;
+
+                    if (encryptionEnabled) {
+                        if (!ResolvableServiceUuid.resolves(advertised, irk)) continue;
+                        try {psm = PsmCipher.decrypt(serviceData, advertised, irk);
+                        } catch (Exception e) {
+                            Log.w(TAG, "PSM didnt decrypt right", e);
+                            continue;
+                        }
+                    } else {
+                        if (!advertised.equals(STATIC_UUID.getUuid())) continue;
+                        psm = ByteBuffer.wrap(serviceData).getShort() & 0xFFFF;
                     }
                     if (foundDevice.compareAndSet(null, result.getDevice())) {
                         foundPsm.set(psm);
@@ -183,14 +186,16 @@ public class MobyBleTransport {
     @SuppressLint("MissingPermission")
     private void startAdvertising(final int psm) throws Exception {
         byte[] irk = IrkStore.get(context);
-        if (irk == null) {
-            throw new IOException("No IRK");
-        }
 
-        currentUuid = ResolvableServiceUuid.generate(irk);
         uuidGeneratedAt = System.currentTimeMillis();
-
-        byte[] psmBytes = PsmCipher.encrypt(psm, currentUuid.getUuid(), irk); // adding encrypted psm
+        byte[] psmBytes;
+        if (encryptionEnabled) {
+            currentUuid = ResolvableServiceUuid.generate(irk);
+            psmBytes = PsmCipher.encrypt(psm, currentUuid.getUuid(), irk); // adding encrypted psm
+        } else {
+            currentUuid = STATIC_UUID;
+            psmBytes = ByteBuffer.allocate(2).putShort((short) psm).array();
+        }
 
         AdvertiseSettings settings = new AdvertiseSettings.Builder().setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY).setConnectable(true).build();
 

@@ -17,8 +17,6 @@ public final class PsmCipher {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7
     };
 
-    private PsmCipher() { }
-
     // encrypt and decrypt
     private static byte[] crypt(byte[] input, UUID uuid, byte[] irk) throws Exception {
         byte[] counterBlock = ByteBuffer.allocate(16).putLong(uuid.getMostSignificantBits()).putLong(uuid.getLeastSignificantBits()).array();
