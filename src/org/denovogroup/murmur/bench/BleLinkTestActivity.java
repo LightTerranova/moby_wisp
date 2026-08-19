@@ -1,5 +1,8 @@
 package org.denovogroup.murmur.bench;
 
+import static org.denovogroup.murmur.bench.MobyTrafficGenerator.randomB64;
+import org.denovogroup.murmur.backend.SecurityManager;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
@@ -19,6 +22,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.denovogroup.murmur.backend.AppConstants;
+import org.denovogroup.murmur.backend.MessageStore;
 import org.denovogroup.murmur.backend.MobyBleTransport;
 import org.denovogroup.murmur.backend.MurmurService;
 
@@ -36,6 +40,7 @@ public class BleLinkTestActivity extends Activity {
     private static final int ACK_BYTE = 0x06;
     private TextView log;
     private EditText irkField;
+    private EditText macField;
     private final Handler ui = new Handler(Looper.getMainLooper());
 
     @Override 
@@ -83,12 +88,45 @@ public class BleLinkTestActivity extends Activity {
             @Override public void onClick(View v) { new Thread(clientRunnable).start(); }
         }));
 
-        root.addView(button("Murmur On", new View.OnClickListener() {
+        macField = new EditText(this);
+        macField.setHint("Server MAC for RFCOMM");
+        macField.setInputType(InputType.TYPE_CLASS_TEXT);
+        root.addView(macField);
+
+        root.addView(button("Save own MAC for Moby proper", new View.OnClickListener() {
             @Override public void onClick(View v) {
-                setMurmurEnabled(true);
-                startService(new Intent(BleLinkTestActivity.this, MurmurService.class));
-                append("MurmurService restarted");
+                String mac = macField.getText().toString().trim().toUpperCase();
+                SecurityManager.setStoredMAC(BleLinkTestActivity.this, mac);
+                append("Stored MAC:" + SecurityManager.getStoredMAC(BleLinkTestActivity.this));
             }
+        }));
+
+        root.addView(button("Testing Moby Proper", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override public void run() {
+                        MessageStore store = MessageStore.getInstance(BleLinkTestActivity.this);
+                        java.util.Random rng = new java.util.Random();
+                        long now = System.currentTimeMillis();
+                        store.purgeStore();
+                        int ok = 0;
+                        for (int i = 0; i < 50; i++) {
+                            if (store.addMessage(now + i, now + i + 604_800_000L, randomB64(rng, 44), randomB64(rng, 400))) {
+                                ok++;
+                            }
+                        }
+                        append("Seeded " + ok + " messages");
+
+                        setMurmurEnabled(true);
+                        startService(new Intent(BleLinkTestActivity.this, MurmurService.class));
+                        append("MurmurService started");
+                    }
+                }).start();
+            }
+        }));
+
+        root.addView(button("Murmur Off", new View.OnClickListener() {
+            @Override public void onClick(View v) { stopMurmur(); }
         }));
 
         log = new TextView(this);
@@ -99,9 +137,6 @@ public class BleLinkTestActivity extends Activity {
         root.addView(scroller);
 
         setContentView(root);
-
-        // Murmur kept running discovery on Bluetooth and WiFi Direct
-        stopMurmur();
 
         append(profile.toString());
     }

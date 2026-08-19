@@ -176,7 +176,7 @@ public final class MobyTrafficGenerator {
         return true;
     }
 
-    private static String randomB64(Random rng, int chars) {
+    static String randomB64(Random rng, int chars) {
         StringBuilder sb = new StringBuilder(chars);
         for (int i = 0; i < chars; i++) {
             sb.append(B64[rng.nextInt(B64.length)]);

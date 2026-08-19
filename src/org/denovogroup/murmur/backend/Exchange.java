@@ -35,7 +35,6 @@ import android.content.Context;
 import org.denovogroup.murmur.objects.CleartextFriends;
 import org.denovogroup.murmur.objects.CleartextMessages;
 import org.denovogroup.murmur.objects.MobyMessage;
-import org.denovogroup.murmur.objects.MobyMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.whispersystems.libsignal.logging.Log;
@@ -79,7 +78,7 @@ public class Exchange implements Runnable {
    * Whether to start the exchange with the first message or wait for the other side
    * to begin the exchange.
    */
-  private boolean asInitiator;
+   boolean asInitiator;
   
   /** The number of friends in common with the remote peer. */
   /* package */ int commonFriends = -1;
