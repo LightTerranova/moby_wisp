@@ -291,6 +291,10 @@ public class CryptographicExchange extends Exchange {
           }
       }
 
+      // start timer for throughput
+      long startTime = System.currentTimeMillis();
+      long totalBytesReceived = 40000;
+
       //read from the stream until either times out or get all the messages
       ExecutorService executor = Executors.newSingleThreadExecutor();
       while(mMessagesReceived.size() < messageCount) {
@@ -331,6 +335,12 @@ public class CryptographicExchange extends Exchange {
           }
       }
       executor.shutdown();
+      // stop timer
+      long endTime = System.currentTimeMillis();
+      long durationMs = endTime - startTime;
+
+      double throughputKbps = ((totalBytesReceived / 1000.0) / (durationMs / 1000.0));
+      Log.i(TAG, "Receiver Goodput: " + String.format("%.2f", throughputKbps) + " kB/s " + totalBytesReceived + " bytes in " + durationMs + " ms");
       Log.d(TAG, "done receiving messages");
       if (mRemoteClientMessage == null) {
           throw new IOException("Remote client message was null in sendServerMessage.");
