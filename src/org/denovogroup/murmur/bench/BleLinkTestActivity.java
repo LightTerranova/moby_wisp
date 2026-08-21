@@ -190,7 +190,7 @@ public class BleLinkTestActivity extends Activity {
                 try {in.read();} catch (Exception ignored) { }
 
                 append("wire " + wire[0] + " B, json " + json + " B, payload " + goodputBytes + " B");
-                printThroughput("Goodput", goodputBytes, elapsed);
+                printThroughput("receive", goodputBytes, elapsed);
             } catch (Throwable t) {
                 Log.e(TAG, "server failed", t);
                 append("Server error" + t);
