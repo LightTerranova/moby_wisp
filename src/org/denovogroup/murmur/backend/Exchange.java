@@ -494,7 +494,12 @@ public class Exchange implements Runnable {
     int readByteCount = 0;
     try {
       while (readByteCount != length) {
-        readByteCount += inputStream.read(messageBytes, readByteCount, length - readByteCount);
+        int n = inputStream.read(messageBytes, readByteCount, length - readByteCount);
+        if (n == -1) {
+          Log.e(TAG, "Stream ended mid frame: " + readByteCount + " of " + length);
+          return null;
+        }
+          readByteCount += n;
       }
 
       recoveredMessage = new JSONObject(new String(messageBytes));
@@ -515,8 +520,13 @@ public class Exchange implements Runnable {
    */
   /* package */ static int popLength(InputStream stream) {
     byte[] lengthBytes = new byte[Integer.SIZE/Byte.SIZE];
+    int total = 0;
     try {
-      stream.read(lengthBytes);
+      while (total < lengthBytes.length) {
+        int n = stream.read(lengthBytes, total, lengthBytes.length - total);
+          if (n == -1) return -1;   // peer closed
+          total += n;
+      }
     } catch (IOException e) {
       Log.e(TAG,  "IOException popping length from input stream: " , e);
       return -1;

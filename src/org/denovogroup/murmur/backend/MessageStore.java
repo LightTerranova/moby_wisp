@@ -97,7 +97,11 @@ public class MessageStore extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         if(db != null) {
             Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE, null);
-            return cursor.getCount();
+            try {
+                return cursor.getCount();
+            } finally {
+                cursor.close();
+            }
         }
         return 0;
     }
@@ -263,8 +267,9 @@ public class MessageStore extends SQLiteOpenHelper {
 
     public void logMessages() {
         SQLiteDatabase db = getReadableDatabase();
-        if(db != null) {
-            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE, null);
+        if (db == null) return;
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE, null);
+        try {
             cursor.moveToFirst();
 
             int timestampColumn   = cursor.getColumnIndex(COL_TIMESTAMP);
@@ -280,15 +285,19 @@ public class MessageStore extends SQLiteOpenHelper {
                         " payload: "     + cursor.getString(payloadColumn));
                 cursor.moveToNext();
             }
-
+        } finally {
+            cursor.close();
         }
     }
 
     public List<MobyMessage> getMessagesForExchange(int sharedContacts){
         SQLiteDatabase db = getReadableDatabase();
-        if(db != null){
-            return convertToMessages(db.rawQuery("SELECT * FROM " + TABLE, null));
+        if (db == null) return new ArrayList<MobyMessage>();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE, null);
+        try {
+            return convertToMessages(cursor);
+        } finally {
+            cursor.close();
         }
-        return new ArrayList<MobyMessage>();
     }
 }

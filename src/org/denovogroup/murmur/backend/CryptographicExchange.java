@@ -272,7 +272,7 @@ public class CryptographicExchange extends Exchange {
 
           @Override
           public ClientMessage call() throws Exception {
-              Log.d(TAG, "receiving message");
+              // Log.d(TAG, "receiving message");
               ClientMessage mCurrentReceived;
 
               mCurrentReceived = ClientMessage.fromJSON(lengthValueRead(in));
@@ -298,12 +298,12 @@ public class CryptographicExchange extends Exchange {
       //read from the stream until either times out or get all the messages
       ExecutorService executor = Executors.newSingleThreadExecutor();
       while(mMessagesReceived.size() < messageCount) {
-          Log.d(TAG, "received message list not yet full, attempting to get messages...");
+          // Log.d(TAG, "received message list not yet full, attempting to get messages...");
           Future<ClientMessage> task = executor.submit(new ReceiveSingleMessage());
           try {
-              Log.d(TAG, "requesting results from receive message task");
+              // Log.d(TAG, "requesting results from receive message task");
               mRemoteClientMessage = task.get(EXCHANGE_TIMEOUT, TimeUnit.MILLISECONDS);
-              Log.d(TAG, "got results from receive message task");
+              // Log.d(TAG, "got results from receive message task");
               //Add everything passed in the wrapper to the pool
               for(JSONObject message : mRemoteClientMessage.messages) {
                   // Log.d(TAG, "unwrapping message");  // creates a lot of junk logs
