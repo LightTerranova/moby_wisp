@@ -761,7 +761,7 @@ public class MurmurService extends Service {
                 } else {
                     hasNew = true;
 
-                    Log.d(TAG, "MobyTag: " + message.getMobyTag());
+                    // Log.d(TAG, "MobyTag: " + message.getMobyTag()); // commenting out because it floods the logs
                     String sender = mFriendStore.verifyMobyTag(message.getMobyTag(), message.getPayload());
                     if (sender != null)
                         handleMessage(message, sender);

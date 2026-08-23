@@ -101,7 +101,7 @@ public class BleLinkTestActivity extends Activity {
             }
         }));
 
-        root.addView(button("Testing Moby Proper", new View.OnClickListener() {
+        root.addView(button("Testing Moby Client", new View.OnClickListener() {
             @Override public void onClick(View v) {
                 new Thread(new Runnable() {
                     @Override public void run() {
@@ -110,7 +110,31 @@ public class BleLinkTestActivity extends Activity {
                         long now = System.currentTimeMillis();
                         store.purgeStore();
                         int ok = 0;
-                        for (int i = 0; i < 50; i++) {
+                        for (int i = 0; i < 1200; i++) { // change this between 1200 on client and 0 on server for throughput results
+                            if (store.addMessage(now + i, now + i + 604_800_000L, randomB64(rng, 44), randomB64(rng, 400))) {
+                                ok++;
+                            }
+                        }
+                        append("Seeded " + ok + " messages");
+
+                        setMurmurEnabled(true);
+                        startService(new Intent(BleLinkTestActivity.this, MurmurService.class));
+                        append("MurmurService started");
+                    }
+                }).start();
+            }
+        }));
+
+        root.addView(button("Testing Moby Server", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override public void run() {
+                        MessageStore store = MessageStore.getInstance(BleLinkTestActivity.this);
+                        java.util.Random rng = new java.util.Random();
+                        long now = System.currentTimeMillis();
+                        store.purgeStore();
+                        int ok = 0;
+                        for (int i = 0; i < 0; i++) { // change this between 1200 on client and 0 on server for throughput results
                             if (store.addMessage(now + i, now + i + 604_800_000L, randomB64(rng, 44), randomB64(rng, 400))) {
                                 ok++;
                             }
