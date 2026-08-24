@@ -39,6 +39,8 @@ import android.os.Build;
 
 import org.whispersystems.libsignal.logging.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -305,8 +307,8 @@ public class BluetoothSpeaker {
     mExchange = new CryptographicExchange(
             mContext,
             mSocket.getRemoteDevice().getAddress(),
-            mSocket.getInputStream(),
-            mSocket.getOutputStream(),
+            new BufferedInputStream(mSocket.getInputStream(), 8192),
+            new BufferedOutputStream(mSocket.getOutputStream(), 8192),
             false,
             mFriendStore,
             mMessageStore,

@@ -58,6 +58,8 @@ import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.internal.push.SignalServiceProtos;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -655,8 +657,8 @@ public class MurmurService extends Service {
                     mExchange = new CryptographicExchange(
                             MurmurService.this,
                             socket.getRemoteDevice().getAddress(),
-                            socket.getInputStream(),
-                            socket.getOutputStream(),
+                            new BufferedInputStream(socket.getInputStream(), 8192),
+                            new BufferedOutputStream(socket.getOutputStream(), 8192),
                             true,
                             mFriendStore,
                             mMessageStore,
