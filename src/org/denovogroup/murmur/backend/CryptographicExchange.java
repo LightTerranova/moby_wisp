@@ -123,11 +123,14 @@ public class CryptographicExchange extends Exchange {
 
         computeSharedFriends();
 
-      // Send client message.
-      sendClientMessage();
-
-      // Receive client message.
-      receiveClientMessage();
+        // one device sends and other receives
+        if (asInitiator) {
+          sendClientMessage();
+          receiveClientMessage();
+        } else {
+          receiveClientMessage();
+          sendClientMessage();
+        }
       
       setExchangeStatus(Status.SUCCESS);
 
@@ -341,7 +344,7 @@ public class CryptographicExchange extends Exchange {
       long durationMs = endTime - startTime;
 
       double throughputKbps = ((totalGoodputBytes / 1000.0) / (durationMs / 1000.0));
-      Log.i(TAG, "Receiver Goodput: " + String.format("%.2f", throughputKbps) + " kB/s " + totalGoodputBytes + " bytes in " + durationMs + " ms");
+      Log.i(TAG, "Receiver Goodput: " + throughputKbps + " kBps " + "(" + totalGoodputBytes + " bytes in " + durationMs + " ms" + ")");
       Log.d(TAG, "done receiving messages");
       if (mRemoteClientMessage == null) {
           throw new IOException("Remote client message was null in sendServerMessage.");

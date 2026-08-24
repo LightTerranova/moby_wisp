@@ -30,6 +30,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 // New activity with a separate icon for Moby Wisp testing to happen in.
 @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -288,8 +289,9 @@ public class BleLinkTestActivity extends Activity {
             append("Throughput [" + direction + "]: no elapsed time measured");
             return;
         }
-        double mbps = (bytes * 8.0) / (elapsedMs / 1000.0) / 1_000_000.0;
-        append("Throughput [" + direction + "]: " + mbps + " Mbps (" + bytes + " bytes in " + elapsedMs + " ms)");
+        if (Objects.equals(direction, "receive")) {
+            double kBps = (bytes / 1000.0) / (elapsedMs / 1000.0);
+            append("Receiver Goodput: " + kBps + " kBps " + "(" + bytes + " bytes in " + elapsedMs + " ms" + ")");}
     }
 
     private static void closeQuietly(BluetoothSocket socket) {

@@ -25,7 +25,7 @@ public final class MobyTrafficGenerator {
     private static final String TAG = "MobyTraffic";
 
     // Moby message cap
-    public static final int MESSAGES_PER_EXCHANGE = 50;
+    public static final int MESSAGES_PER_EXCHANGE = 100;
 
     private static final char[] B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray(); // traffic gen char set
 
