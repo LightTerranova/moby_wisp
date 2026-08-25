@@ -89,6 +89,10 @@ public class CryptographicExchange extends Exchange {
 
   private static final String MESSAGE_COUNT_KEY = "count";
 
+  /** constants for logging "message received" */
+  private static final int LOG_EVERY = 100;
+  private int mMessagesLogged = 0;
+
   
   /**
    * Perform the exchange asynchronously, calling back success or failure on
@@ -288,7 +292,11 @@ public class CryptographicExchange extends Exchange {
                   throw new Exception("Remote client messages field was null");
               }
 
-              Log.d(TAG, "message received");
+              mMessagesLogged += mCurrentReceived.messages.size();
+              if (mMessagesLogged >= LOG_EVERY) {
+                  mMessagesLogged -= LOG_EVERY;
+                  Log.d(TAG, "messages received: " + mMessagesReceived.size());
+              }
 
               return mCurrentReceived;
           }

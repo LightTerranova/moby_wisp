@@ -89,9 +89,12 @@ public class BleLinkTestActivity extends Activity {
             @Override public void onClick(View v) { new Thread(clientRunnable).start(); }
         }));
 
+        // adding pre filling mac
         macField = new EditText(this);
         macField.setHint("Server MAC for RFCOMM");
         macField.setInputType(InputType.TYPE_CLASS_TEXT);
+        String storedMac = SecurityManager.getStoredMAC(this);
+        if (storedMac != null && !storedMac.isEmpty()) macField.setText(storedMac);
         root.addView(macField);
 
         root.addView(button("Save own MAC for Moby proper", new View.OnClickListener() {
