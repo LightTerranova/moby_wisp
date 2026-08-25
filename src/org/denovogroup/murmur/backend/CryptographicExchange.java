@@ -234,8 +234,7 @@ public class CryptographicExchange extends Exchange {
           success = false;
       } else {
           for (MobyMessage message : messagesPool) {
-              Log.d(TAG, "Sending: ts=" + String.valueOf(message.getTimestamp()).length() + "B ttl=" + String.valueOf(message.getTimeToLive()).length() + "B tag=" + message.getMobyTag().getBytes("UTF-8").length
-                      + "B payload=" + message.getPayload().getBytes("UTF-8").length + "B json=" + message.toJSON().toString().getBytes("UTF-8").length + "B");
+              // Log.d(TAG, "Sending: ts=" + String.valueOf(message.getTimestamp()).length() + "B ttl=" + String.valueOf(message.getTimeToLive()).length() + "B tag=" + message.getMobyTag().getBytes("UTF-8").length + "B payload=" + message.getPayload().getBytes("UTF-8").length + "B json=" + message.toJSON().toString().getBytes("UTF-8").length + "B");
               List<JSONObject> messageWrapper = new ArrayList<>();
               messageWrapper.add(message.toJSON());
               ClientMessage cm = new ClientMessage((ArrayList<JSONObject>)messageWrapper, null);
