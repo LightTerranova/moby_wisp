@@ -526,6 +526,11 @@ public class MurmurService extends Service {
      * background tasks.
      */
     public void backgroundTasks() {
+        if (MurmurService.direction != 0) {
+            Log.i(TAG, "Exchange in progress, turning off other tasks.");
+            WifiDirectSpeaker.getInstance().tasks();
+            return;
+        }
         if (!USE_MINIMAL_LOGGING) Log.i(TAG, "Background Tasks Started");
 
         /*
