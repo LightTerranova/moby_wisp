@@ -418,6 +418,11 @@ public class WifiDirectSpeaker extends BroadcastReceiver{
    * or false otherwise
    */
   public boolean tasks() {
+    if (MurmurService.direction != 0) {
+      Log.i(TAG, "Exchange in progress, stopping discovery.");
+      stopSeekingPeers();
+      return true;
+    }
       Log.i(TAG, "Starting WifiDirectSpeaker tasks (mSeekingDesired:" + mSeekingDesired + ")");
 
       WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
