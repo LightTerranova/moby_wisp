@@ -319,11 +319,10 @@ public class FriendStore extends SQLiteOpenHelper{
         if(db == null) return null;
 
         Cursor c = db.rawQuery("SELECT * FROM " + TABLE + " WHERE " + COL_MOBY_ID + " != '';", null);
-        int mobyKeyColumn = c.getColumnIndex(COL_MOBY_SHARED_SECRET);
-        int numberColumn  = c.getColumnIndex(COL_NUMBER);
-
-        c.moveToFirst();
         try {
+            int mobyKeyColumn = c.getColumnIndex(COL_MOBY_SHARED_SECRET);
+            int numberColumn  = c.getColumnIndex(COL_NUMBER);
+            c.moveToFirst();
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secretKeySpec;
             String ourTag;
@@ -331,14 +330,16 @@ public class FriendStore extends SQLiteOpenHelper{
                 secretKeySpec = new SecretKeySpec(c.getBlob(mobyKeyColumn), "HmacSHA256");
                 mac.init(secretKeySpec);
                 ourTag = Base64.encodeToString(mac.doFinal(base64ToBytes(payload)), Base64.NO_WRAP);
-                Log.d(TAG, "Our: " + ourTag);
-                Log.d(TAG, "Thr: " + tag);
+                // Log.d(TAG, "Our: " + ourTag);
+                // Log.d(TAG, "Thr: " + tag);
                 if(ourTag.equals(tag))
                     return c.getString(numberColumn);
                 c.moveToNext();
             }
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             Log.d(TAG, e.getMessage());
+        } finally {
+            c.close();
         }
         return null;
     }
@@ -350,17 +351,21 @@ public class FriendStore extends SQLiteOpenHelper{
         number = number.replaceAll("\\s", "");
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE + " WHERE " + COL_NUMBER + " = '" + number + "';", null);
 
-        if(cursor.getCount() == 0) return false;
+        try {
+            if (cursor.getCount() == 0) return false;
 
-        cursor.moveToFirst();
-        int mobyIDColumn = cursor.getColumnIndex(COL_MOBY_ID);
-        String key = cursor.getString(mobyIDColumn);
+            cursor.moveToFirst();
+            int mobyIDColumn = cursor.getColumnIndex(COL_MOBY_ID);
+            String key = cursor.getString(mobyIDColumn);
 
-        Log.d(TAG, number + " hasKey: " + key);
+            Log.d(TAG, number + " hasKey: " + key);
 
-        if(key.equals("")) return false;
+            if (key.equals("")) return false;
 
-        return true;
+            return true;
+        } finally {
+            cursor.close();
+        }
     }
 
     public boolean sentHandshake(String number) {
@@ -371,10 +376,13 @@ public class FriendStore extends SQLiteOpenHelper{
         number = number.replaceAll("\\s", "");
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE + " WHERE " + COL_NUMBER + " = '" + number + "';", null);
 
-        if(cursor.getCount() == 0)
-            return false;
-
-        return true;
+        try {
+            if (cursor.getCount() == 0)
+                return false;
+            return true;
+        } finally {
+            cursor.close();
+        }
     }
 
 
@@ -398,7 +406,7 @@ public class FriendStore extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         if(db == null) return false;
 
-        if(getFriendWithMobyID(mobyID) == null){
+        if(!getFriendWithMobyID(mobyID)){
             Log.d(TAG, "Friend was not in the store");
             return false;
         }
@@ -420,30 +428,34 @@ public class FriendStore extends SQLiteOpenHelper{
 
         Cursor cursor = db.rawQuery("SELECT " + COL_MOBY_ID + " FROM " + TABLE + ";", null);
 
-        cursor.moveToFirst();
+        try {
+            cursor.moveToFirst();
 
-        int keyColIndex = cursor.getColumnIndex(COL_MOBY_ID);
-        String key = "";
+            int keyColIndex = cursor.getColumnIndex(COL_MOBY_ID);
+            String key = "";
 
-        while (!cursor.isAfterLast()){
-            key = cursor.getString(keyColIndex);
-            if(key != null && !key.equals(""))
-                friends.add(key);
-            cursor.moveToNext();
+            while (!cursor.isAfterLast()) {
+                key = cursor.getString(keyColIndex);
+                if (key != null && !key.equals(""))
+                    friends.add(key);
+                cursor.moveToNext();
+            }
+            return friends;
+        } finally {
+            cursor.close();
         }
-        return friends;
     }
 
-    private Cursor getFriendWithMobyID(String key) {
+    private boolean getFriendWithMobyID(String key) {
         SQLiteDatabase db = getWritableDatabase();
-        if(db == null)
-            return null;
+        if(db == null) return false;
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE + " WHERE " + COL_MOBY_ID + " = '" + key + "';", null);
-
-        if(cursor.getCount() == 0) return null;
-
-        return cursor;
+        try {
+            return cursor.getCount() > 0;
+        } finally {
+            cursor.close();
+        }
     }
 
     private byte[] getFriendMobyTagKeyfromNumber(String number) {
@@ -452,13 +464,17 @@ public class FriendStore extends SQLiteOpenHelper{
             return null;
 
         Cursor c = db.rawQuery("SELECT * FROM " + TABLE + " WHERE " + COL_NUMBER + " = '" + number +"';", null);
-        c.moveToFirst();
+        try {
+            c.moveToFirst();
 
-        if(c.getCount() == 0)
-            return null;
-        int keyColumn = c.getColumnIndex(COL_MOBY_SHARED_SECRET);
+            if (c.getCount() == 0)
+                return null;
+            int keyColumn = c.getColumnIndex(COL_MOBY_SHARED_SECRET);
 
-        return c.getBlob(keyColumn);
+            return c.getBlob(keyColumn);
+        } finally {
+            c.close();
+        }
     }
 
     public String getFriendMobyIDfromNumber(String number) {
@@ -467,15 +483,18 @@ public class FriendStore extends SQLiteOpenHelper{
             return null;
 
         Cursor c = db.rawQuery("SELECT * FROM " + TABLE + " WHERE " + COL_NUMBER + " = '" + number + "';", null);
+        try {
+            c.moveToFirst();
 
-        c.moveToFirst();
+            int keyColumn = c.getColumnIndex(COL_MOBY_ID);
 
-        int keyColumn = c.getColumnIndex(COL_MOBY_ID);
+            if (c.getCount() == 0)
+                return null;
 
-        if(c.getCount() == 0)
-            return null;
-
-        return c.getString(keyColumn);
+            return c.getString(keyColumn);
+        } finally {
+            c.close();
+        }
     }
 
     public void purgeStore(){
