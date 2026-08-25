@@ -102,7 +102,7 @@ public class SecurityManager {
                 .setAutodeleteAge(14)
                 .setShareLocation(true)
                 .setMinSharedContacts(0)
-                .setMaxMessages(1200) // for Moby testing
+                .setMaxMessages(10000) // for Moby testing
                 .setCooldown(5)
                 .setEnforceLock(false)
                 .setUseTrust(false)
