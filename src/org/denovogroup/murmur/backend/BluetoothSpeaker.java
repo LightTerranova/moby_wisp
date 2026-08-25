@@ -298,12 +298,21 @@ public class BluetoothSpeaker {
     } else if (!mBluetoothAdapter.isEnabled()) {
       throw new IOException("Bluetooth adapter is disabled, not trying to accept().");
     }
-    Log.i(TAG,  "Calling mServerSocket.accept()");
-    mSocket = mServerSocket.accept();
-    Log.i(TAG, "Accepted socket from " + mSocket.getRemoteDevice());
-    Log.i(TAG,  "Accepted socket connected? " + mSocket.isConnected());
-    MurmurService.direction = -1;
-    MurmurService.remoteAddress = mSocket.getRemoteDevice().getAddress();
+      Log.i(TAG,  "Calling mServerSocket.accept()");
+      BluetoothSocket accepted = mServerSocket.accept();
+
+    // accept() blocks
+      if (MurmurService.direction != 0) {
+          Log.w(TAG, "Rejecting a connection while exchange already active. direction = " + MurmurService.direction);
+          try { accepted.close(); } catch (IOException ignored) {}
+          return;
+      }
+
+      mSocket = accepted;
+      Log.i(TAG, "Accepted socket from " + mSocket.getRemoteDevice());
+      Log.i(TAG,  "Accepted socket connected? " + mSocket.isConnected());
+      MurmurService.direction = -1;
+      MurmurService.remoteAddress = mSocket.getRemoteDevice().getAddress();
     mExchange = new CryptographicExchange(
             mContext,
             mSocket.getRemoteDevice().getAddress(),

@@ -109,7 +109,14 @@ public class BleLinkTestActivity extends Activity {
             @Override public void onClick(View v) {
                 new Thread(new Runnable() {
                     @Override public void run() {
+                        setMurmurEnabled(false);
+                        stopService(new Intent(BleLinkTestActivity.this, MurmurService.class));
+                        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+
                         MessageStore store = MessageStore.getInstance(BleLinkTestActivity.this);
+                        store.purgeStore();
+                        append("Store purged, size now " + store.getMessageStoreSize());
+
                         java.util.Random rng = new java.util.Random();
                         long now = System.currentTimeMillis();
                         store.purgeStore();
@@ -133,7 +140,14 @@ public class BleLinkTestActivity extends Activity {
             @Override public void onClick(View v) {
                 new Thread(new Runnable() {
                     @Override public void run() {
+                        setMurmurEnabled(false);
+                        stopService(new Intent(BleLinkTestActivity.this, MurmurService.class));
+                        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+
                         MessageStore store = MessageStore.getInstance(BleLinkTestActivity.this);
+                        store.purgeStore();
+                        append("Store purged, size now " + store.getMessageStoreSize());
+
                         java.util.Random rng = new java.util.Random();
                         long now = System.currentTimeMillis();
                         store.purgeStore();

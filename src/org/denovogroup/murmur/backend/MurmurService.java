@@ -509,7 +509,7 @@ public class MurmurService extends Service {
             Log.i(TAG, "Connecting: " + getConnecting());
             Log.i(TAG, "timeSinceLastOK: " + timeSinceLastOK);
         }
-        return timeSinceLastOK && (getConnecting() == null);
+        return timeSinceLastOK && (getConnecting() == null) && direction == 0;
     }
 
     /**
