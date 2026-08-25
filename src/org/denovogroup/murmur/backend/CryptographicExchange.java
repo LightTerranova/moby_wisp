@@ -295,7 +295,7 @@ public class CryptographicExchange extends Exchange {
               mMessagesLogged += mCurrentReceived.messages.size();
               if (mMessagesLogged >= LOG_EVERY) {
                   mMessagesLogged -= LOG_EVERY;
-                  Log.d(TAG, "messages received: " + mMessagesReceived.size());
+                  Log.d(TAG, "messages received: " + (mMessagesReceived.size() + 1));
               }
 
               return mCurrentReceived;
