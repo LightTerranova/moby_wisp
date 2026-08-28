@@ -18,10 +18,11 @@ Fork of the Moby paper. This repository holds an Android application with an exp
 
 ## Sending via Bluetooth Classic (Moby)
 1. Find the MAC Address of both devices by going to Settings -> About Phone -> Status Information -> Bluetooth Address
-2. Input the MAC Address of this device into the "Server MAC for RFCOMM" address field
-3. Click "Save Own MAC for Moby Proper"
-4. Click "Testing Moby Server" on one device
-5. Click "Testing Moby Client" on the other device
+2. Go to Settings -> About Phone and change the device name to "MOBY-" + OWN MAC address (eg. MOBY-28:9F:04:9B:23:C2)
+3. Input the MAC Address of OWN device into the "Server MAC for RFCOMM" address field
+4. Click "Save Own MAC for Moby Proper"
+6. Click "Testing Moby Server" on one device
+7. Click "Testing Moby Client" on the other device
 
 ## Sending via Bluetooth Low Energy Public Mode (Wisp)
 1. Click "Toggle Public Mode"
