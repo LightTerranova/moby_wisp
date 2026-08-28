@@ -12,7 +12,7 @@ Fork of the Moby paper. This repository holds an Android application with an exp
 2. Open the project in Android Studio
 3. Sync Gradle
 4. Connect two Android devices via USB or WiFi Debugging
-5. Run the application on one device at a time
+5. Run the application (Do not use the option to run on both devices at the same time. Run on one device, then the other.)
 6. Allow all permissions
 7. Leave the Moby app and open a second installed app called "BLE Link Test"
 
