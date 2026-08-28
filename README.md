@@ -35,3 +35,6 @@ Fork of the Moby paper. This repository holds an Android application with an exp
 3. Click "Save IRK"
 4. Click "Listen (Server)" on one device
 5. CLick "Connect (Client)" on the other device
+
+## Results
+The logs of runs used for our throughput results can be found at the top level of this repository in a file called “All Experiments Final.txt”
